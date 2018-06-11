@@ -226,12 +226,13 @@ class HomeScreen extends Component {
     }));
     ToastAndroid.show("Sorted By Desc z-A", ToastAndroid.SHORT);
   };
-  reloadFilterDataByName = () => {
+  reloadFilterDataByName = name => {
+    this.popupDialog.dismiss();
     queryAllTodoLists()
       .then(todoLists => {
         var newArrayDataOfOjbect = Object.values(todoLists);
         var updatedfilter = newArrayDataOfOjbect.filter(todo => {
-          return todo.name === "Mango";
+          return todo.name === name;
         });
         console.log("ppp ", updatedfilter);
         this.setState({ todoLists: updatedfilter });
@@ -337,6 +338,13 @@ class HomeScreen extends Component {
                   underlineColorAndroid={"transparent"}
                 />
               </View>
+              <Button
+                title="Search"
+                onPress={this.reloadFilterDataByName.bind(
+                  this,
+                  this.state.term
+                )}
+              />
             </View>
           </PopupDialog>
           <FlatList
@@ -371,7 +379,8 @@ const styles = StyleSheet.create({
     borderColor: "black",
     borderWidth: 1,
     height: 37,
-    width: 120
+    width: 120,
+    marginBottom: 25
   }
 });
 
