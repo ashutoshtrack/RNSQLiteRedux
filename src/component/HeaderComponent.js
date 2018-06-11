@@ -8,32 +8,57 @@ import {
   Image,
   Alert
 } from "react-native";
-import addicon from "../../images/add-icon.png";
 
-const HeaderComponent = props => {
-  const {
-    title,
-    showAddTodoList,
-    hasAddButton,
-    hasSortButton,
-    sort,
-    sortState,
-    hasDeleteAllButton,
-    navinavigate
-  } = props;
-  return (
-    <View style={styles.container}>
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <Text style={{ fontSize: 35, color: "white" }}> {title}</Text>
+import addicon from "../../images/add-icon.png";
+import sorticon from "../../images/sort-asc-icon.png";
+import sortDescIcon from "../../images/sort-desc-icon.png";
+import searchIcon from "../../images/search.png";
+
+class HeaderComponent extends Component {
+  render() {
+    const {
+      title,
+      showAddTodoList,
+      hasAddButton,
+      hasSortButton,
+      sort,
+      sortState,
+      hasDeleteAllButton,
+      navinavigate,
+      sortMono,
+      poppy
+    } = this.props;
+    return (
+      <View style={styles.container}>
+        <View
+          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+        >
+          <Text style={{ fontSize: 35, color: "white" }}> {title}</Text>
+        </View>
+
+        {hasAddButton && (
+          <TouchableOpacity style={styles.addButton} onPress={poppy}>
+            <Image style={styles.addButtonImage} source={searchIcon} />
+          </TouchableOpacity>
+        )}
+        {hasSortButton && (
+          <TouchableOpacity style={styles.addButton} onPress={sortMono}>
+            <Image
+              style={styles.addButtonImage}
+              source={sortState ? sorticon : sortDescIcon}
+            />
+          </TouchableOpacity>
+        )}
+        {hasAddButton && (
+          <TouchableOpacity style={styles.addButton} onPress={navinavigate}>
+            <Image style={styles.addButtonImage} source={addicon} />
+          </TouchableOpacity>
+        )}
       </View>
-      {hasAddButton && (
-        <TouchableOpacity style={styles.addButton} onPress={navinavigate}>
-          <Image style={styles.addButtonImage} source={addicon} />
-        </TouchableOpacity>
-      )}
-    </View>
-  );
-};
+    );
+  }
+}
+
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
@@ -59,7 +84,7 @@ const styles = StyleSheet.create({
   addButton: {
     zIndex: 2,
     marginRight: 10,
-    marginTop: 30
+    marginTop: 5
   },
   addButtonImage: {
     width: 42,

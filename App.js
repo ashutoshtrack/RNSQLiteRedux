@@ -16,8 +16,9 @@ import {
 import { AppNavigator } from "./Navigation/AppNavigator";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
+import reducers from "./src/reducers";
 
-const store = createStore(() => []);
+const store = createStore(reducers);
 
 class App extends Component {
   render() {
