@@ -5,14 +5,23 @@ import {
   Text,
   Alert,
   View,
+  Image,
   DrawerLayoutAndroid,
   FlatList,
   Button,
   ToastAndroid,
-  TouchableHighlight,
+  TouchableOpacity,
+  KeyboardAvoidingView,
   TextInput
 } from "react-native";
+import { TextField } from "react-native-material-textfield";
+import KeyboardSpacer from "react-native-keyboard-spacer";
 import DatePicker from "react-native-datepicker";
+import Card from "./common/Card";
+import CardSection from "./common/CardSection";
+import sorticon from "../../images/sort-asc-icon.png";
+import sortDescIcon from "../../images/sort-desc-icon.png";
+import searchIcon from "../../images/search.png";
 import {
   updateTodoList,
   deleteTodoList,
@@ -20,10 +29,10 @@ import {
   insertNewTodoList
 } from "../../database/allSchemas";
 import realm from "../../database/allSchemas";
-import PopupDialog from "react-native-popup-dialog";
+import PopupDialog, { slideAnimation } from "react-native-popup-dialog";
 import HeaderComponent from "./HeaderComponent";
 import FlatListItem from "./FlatListItem";
-
+const today = new Date();
 class HomeScreen extends Component {
   constructor(props) {
     super(props);
@@ -34,7 +43,14 @@ class HomeScreen extends Component {
       sorty: true,
       TitlePointer: true,
       FilterPointer: true,
-      date: "2016-05-15"
+      slicePeice: 5,
+      date:
+        today.getFullYear() +
+        "-" +
+        "0" +
+        (today.getMonth() + 1) +
+        "-" +
+        today.getDate()
     };
     this.reloadData();
     realm.addListener("change", () => {
@@ -42,15 +58,21 @@ class HomeScreen extends Component {
     });
   }
   reloadData = () => {
+    /* let sortFilu = realm.objects("TodoList").sorted("creationDate", false);
+    var newArrayDataOfOjbect = Object.values(sortFilu); */
     queryAllTodoLists()
       .then(todoLists => {
         var newArrayDataOfOjbect = Object.values(todoLists);
-        newArrayDataOfOjbect.sort(function(a, b) {
+        /*     newArrayDataOfOjbect.sort(function(a, b) {
           var dateA = new Date(a.creationDate),
             dateB = new Date(b.creationDate);
           return dateB - dateA; //sort by date ascending
+        }); */
+
+        this.setState({
+          todoLists: newArrayDataOfOjbect,
+          FilterPointer: true
         });
-        this.setState({ todoLists: newArrayDataOfOjbect, FilterPointer: true });
       })
       .catch(error => {
         alert("Error");
@@ -58,13 +80,22 @@ class HomeScreen extends Component {
       });
   };
 
-  AddHandler = namer => {
+  AddHandler = (namer, dater) => {
     //  navigate("Tada");
 
+    var todayMate = new Date();
+    /*     var updatedDate =
+      (todayMate.getFullYear()) +
+      "-" +
+      "0" +
+      (todayMate.getMonth() + 1) +
+      "-" +
+      todayMate.getDate(); */
+    /*   alert(updatedDate); */
     const newTodoList = {
       id: Math.floor(Date.now() / 1000),
       name: namer,
-      creationDate: new Date()
+      creationDate: dater
     };
     insertNewTodoList(newTodoList)
       .then()
@@ -81,11 +112,21 @@ class HomeScreen extends Component {
       });
   };
 
-  UpdateHandlerFromTodoScreen = (namer, item) => {
+  UpdateHandlerFromTodoScreen = (namer, item, datex) => {
+    let updatedCreationDate = "";
+
+    if (item.creationDate !== datex) {
+      //console.log(datex, "upfts");
+
+      updatedCreationDate = datex;
+    } else {
+      updatedCreationDate = item.creationDate;
+    }
+    console.log(updatedCreationDate, "upfts");
     const newTodoList = {
       id: item.id,
       name: namer,
-      creationDate: item.creationDate
+      creationDate: updatedCreationDate
     };
 
     updateTodoList(newTodoList)
@@ -98,14 +139,14 @@ class HomeScreen extends Component {
   //addClicked() {}
 
   // Two Way binding from child screen goBack();
-  onSelect = namer => {
-    this.AddHandler(namer);
+  onSelect = (namer, dateum) => {
+    this.AddHandler(namer, dateum);
   };
 
   //To waay binding for child screen update goBack();
 
-  OnUpdate = (namer, item) => {
-    this.UpdateHandlerFromTodoScreen(namer, item);
+  OnUpdate = (namer, item, datex) => {
+    this.UpdateHandlerFromTodoScreen(namer, item, datex);
   };
 
   NavigateNow = () => {
@@ -145,39 +186,71 @@ class HomeScreen extends Component {
     });
   };
 
+  /*  LoadMore = () => {
+    this.setState({ slicePeice: 10 });
+    this.reloadData();
+  };
+ */
   //Sorts Defined bel0w
+
+  reloadSorty = () => {
+    let sortFilu = realm.objects("TodoList").sorted("creationDate", false);
+    var newArrayDataOfOjbect = Object.values(sortFilu);
+
+    // var newArrayDataOfOjbect = Object.values(todoLists);
+
+    this.setState({
+      todoLists: newArrayDataOfOjbect,
+      FilterPointer: true,
+      sorty: true
+    });
+    //   });
+  };
 
   sortChecker = () => {
     if (this.state.sorty) {
       this.reloadDescData();
     } else {
-      this.reloadData();
+      this.reloadSorty();
     }
     //alert(this.state.sorty);
-    this.setState(prevState => ({
+    /*  this.setState(prevState => ({
       sorty: !prevState.sorty
-    }));
+    })); */
   };
 
   reloadDescData = () => {
-    queryAllTodoLists()
-      .then(todoLists => {
-        var newArrayDataOfOjbect = Object.values(todoLists);
-        newArrayDataOfOjbect.sort(function(a, b) {
+    let sortFilu = realm.objects("TodoList").sorted("creationDate", true);
+
+    // console.log(sortFilu, "sortFilu");
+    /* queryAllTodoLists()
+      .then(todoLists => { */
+    var newArrayDataOfOjbect = Object.values(sortFilu);
+    /*    newArrayDataOfOjbect.sort(function(a, b) {
           var dateA = new Date(a.creationDate),
             dateB = new Date(b.creationDate);
           return dateA - dateB; //sort by date desc
-        });
-        this.setState({ todoLists: newArrayDataOfOjbect, FilterPointer: true });
-      })
+        }); */
+    this.setState({
+      todoLists: newArrayDataOfOjbect,
+      FilterPointer: true,
+      sorty: false
+    });
+    /*    })
       .catch(error => {
         alert("Error");
         this.setState({ todoLists: [] });
-      });
+     });*/
   };
 
   reloadTitleAscendingSorter = () => {
-    queryAllTodoLists()
+    let sortTitle = realm.objects("TodoList").sorted("name", true);
+    let newArrayDataOfOjbect = Object.values(sortTitle);
+    /*  this.setState({
+      todoLists: newArrayDataOfOjbect,
+      FilterPointer: true
+    }); */
+    /*   queryAllTodoLists()
       .then(todoLists => {
         var newArrayDataOfOjbect = Object.values(todoLists);
         newArrayDataOfOjbect.sort(function(a, b) {
@@ -194,17 +267,19 @@ class HomeScreen extends Component {
       .catch(error => {
         alert("Error");
         this.setState({ todoLists: [] });
-      });
+      }); */
 
     this.setState(prevState => ({
+      todoLists: newArrayDataOfOjbect,
+      FilterPointer: true,
       TitlePointer: !prevState.TitlePointer
     }));
 
-    ToastAndroid.show("Sorted By Names A-Z", ToastAndroid.SHORT);
+    ToastAndroid.show("Sorted By Names Z-A", ToastAndroid.SHORT);
   };
 
   reloadTitleDescendingSorter = () => {
-    queryAllTodoLists()
+    /*     queryAllTodoLists()
       .then(todoLists => {
         var newArrayDataOfOjbect = Object.values(todoLists);
         newArrayDataOfOjbect.sort(function(a, b) {
@@ -221,44 +296,121 @@ class HomeScreen extends Component {
       .catch(error => {
         alert("Error");
         this.setState({ todoLists: [] });
-      });
+      }); */
+    let sortTitleDesc = realm.objects("TodoList").sorted("name", false);
+    let newArrayDataOfOjbect = Object.values(sortTitleDesc);
 
     this.setState(prevState => ({
+      todoLists: newArrayDataOfOjbect,
       TitlePointer: !prevState.TitlePointer
     }));
-    ToastAndroid.show("Sorted By Desc z-A", ToastAndroid.SHORT);
+    ToastAndroid.show("Sorted By Desc A-Z", ToastAndroid.SHORT);
   };
-  reloadFilterDataByName = name => {
+  reloadFilterDataByName = (name, date) => {
+    var tempupdatedDate =
+      new Date(date).getFullYear() +
+      "-" +
+      "0" +
+      (new Date(date).getMonth() + 1) +
+      "-" +
+      (new Date(date).getDate() + 1);
+    let tempFilter = [];
+
+    if (name === "") {
+      tempFilter = realm
+        .objects("TodoList")
+        .filtered(
+          "creationDate >= $0 && creationDate < $1",
+          new Date(date),
+          new Date(tempupdatedDate)
+        );
+    } else {
+      console.log(new Date(tempupdatedDate));
+      tempFilter = realm
+        .objects("TodoList")
+        .filtered(
+          "creationDate >= $0 && creationDate < $1 AND name = $2",
+          new Date(date),
+          new Date(tempupdatedDate),
+          name
+        );
+    }
+    console.log(tempFilter);
+
+    if (tempFilter.length === 0) {
+      return ToastAndroid.show("No Results", ToastAndroid.SHORT);
+    }
+
+    ToastAndroid.show("Filtered", ToastAndroid.SHORT);
+
+    /*   let hondas = realm
+      .objects("TodoList")
+      .filtered(
+        "creationDate >= $0 && creationDate < $1 OR name = $2",
+        new Date(date),
+        new Date(tempupdatedDate),
+        name
+      ); */
+    var updatedTempFilter = Object.values(tempFilter);
+    // console.log(new Date(date));
+
+    this.setState({ todoLists: updatedTempFilter, FilterPointer: false });
+
     this.popupDialog.dismiss();
-    queryAllTodoLists()
-      .then(todoLists => {
-        var newArrayDataOfOjbect = Object.values(todoLists);
+    //console.log(new Date(tempupdatedDate));
+    // console.log(updatedTempFilter, "Hondas");
+
+    /*   queryAllTodoLists().then(todoLists => {
+      var newArrayDataOfOjbect = Object.values(todoLists);
+     
         var updatedfilter = newArrayDataOfOjbect.filter(todo => {
-          return todo.name === name;
-        });
-        console.log("ppp ", updatedfilter);
+          var updatedDate =
+            todo.creationDate.getFullYear() +
+            "-" +
+            "0" +
+            (todo.creationDate.getMonth() + 1) +
+            "-" +
+            todo.creationDate.getDate();
+
+          //     console.log(updatedDate);
+          //    console.log(date + "der");
+          if (name === "") {
+            // console.log("updated Date", updatedDate);
+         //   console.log("date", date); 
+            return updatedDate === date;
+          }
+
+          return todo.name === name && updatedDate === date;
+        }); */
+    /*         console.log(updatedfilter); */
+    /*   if (updatedfilter.length === 0) {
+          return ToastAndroid.show("No Records Found", ToastAndroid.SHORT);
+        }
         this.setState({ todoLists: updatedfilter });
+        this.setState({
+          FilterPointer: false
+        });
+        this.popupDialog.dismiss();
+        ToastAndroid.show("filtered", ToastAndroid.SHORT);
       })
       .catch(error => {
         alert("Error");
-        this.setState({ todoLists: [] });
-      });
-
-    this.setState(prevState => ({
-      FilterPointer: !prevState.FilterPointer
-    }));
-    ToastAndroid.show("filtered", ToastAndroid.SHORT);
+        this.setState({ todoLists: [] }); */
+    // });
   };
 
   unloadFilterDataByName = () => {
     this.reloadData();
     this.setState(prevState => ({
-      FilterPointer: !prevState.FilterPointer
+      FilterPointer: !prevState.FilterPointer,
+      term: ""
     }));
     ToastAndroid.show("Removed", ToastAndroid.SHORT);
   };
 
   render() {
+    // console.log(this.state.todoLists.slice(0, 5));
+    /* 
     var navigationView = (
       <View style={{ flex: 1, backgroundColor: "#fff" }}>
         <Text
@@ -300,95 +452,183 @@ class HomeScreen extends Component {
           }
         />
       </View>
-    );
+    ); */
 
     return (
-      <DrawerLayoutAndroid
+      /*    <DrawerLayoutAndroid
         drawerWidth={300}
         drawerPosition={DrawerLayoutAndroid.positions.Left}
         renderNavigationView={() => navigationView}
-      >
-        <View style={styles.container}>
-          <HeaderComponent
-            title={"Todo List"}
-            hasAddButton={true}
-            navinavigate={this.NavigateNow}
-            sortMono={this.sortChecker}
-            hasSortButton={true}
-            sortState={this.state.sorty}
-            poppy={() => {
-              this.popupDialog.show();
-            }}
-          />
-          <PopupDialog
-            ref={popupDialog => {
-              this.popupDialog = popupDialog;
-            }}
-          >
-            <View style={{ alignItems: "center" }}>
-              <Text style={{ color: "tomato", fontSize: 35, marginBottom: 10 }}>
+      > */
+
+      <View style={styles.container}>
+        <HeaderComponent
+          title={"Todo List"}
+          hasAddButton={true}
+          navinavigate={this.NavigateNow}
+          sortMono={this.sortChecker}
+          hasSortButton={true}
+          sortState={this.state.sorty}
+          poppy={() => {
+            this.popupDialog.show();
+          }}
+          sortpoppy={() => {
+            this.popupDialogtwo.show();
+          }}
+        />
+
+        <PopupDialog
+          ref={popupDialog => {
+            this.popupDialog = popupDialog;
+          }}
+          dialogAnimation={slideAnimation}
+          height={this.state.FilterPointer ? 230 : 260}
+          containerStyle={{ paddingBottom: 180 }}
+        >
+          <View style={{ alignItems: "center" }}>
+            <Card>
+              <Text
+                style={{
+                  color: "tomato",
+                  fontSize: 30,
+                  marginBottom: 10,
+                  marginLeft: 5,
+                  marginRight: 5
+                }}
+              >
                 Filter Your Search
               </Text>
+            </Card>
+            <Card>
               <View style={{ flexDirection: "row" }}>
+                {/*   <View>
+                    <Text style={{ fontSize: 20, margin: 4 }}> Title: </Text>
+                  </View> */}
                 <View>
-                  <Text style={{ fontSize: 20, margin: 4 }}> Title: </Text>
+                  <TextInput
+                    label="Add Todo"
+                    style={styles.input}
+                    onChangeText={text => this.setState({ term: text })}
+                    value={this.state.term}
+                    placeholder="Add Your Task Here"
+                    underlineColorAndroid={"transparent"}
+                  />
                 </View>
-                <TextInput
-                  style={styles.input}
-                  onChangeText={text => this.setState({ term: text })}
-                  value={this.state.term}
-                  underlineColorAndroid={"transparent"}
+              </View>
+              <View style={{ alignItems: "center" }}>
+                <DatePicker
+                  style={{ width: 200 }}
+                  date={this.state.date}
+                  mode="date"
+                  placeholder="select date"
+                  format="YYYY-MM-DD"
+                  minDate="2018-06-01"
+                  maxDate="2018-06-30"
+                  confirmBtnText="Confirm"
+                  cancelBtnText="Cancel"
+                  customStyles={{
+                    dateIcon: {
+                      position: "absolute",
+                      left: 0,
+                      top: 4,
+                      marginLeft: 0
+                    },
+                    dateInput: {
+                      marginLeft: 36,
+                      marginBottom: 12,
+                      elevation: 3
+                    }
+                    // ... You can check the source to find the other keys.
+                  }}
+                  onDateChange={date => {
+                    this.setState({ date: date });
+                  }}
                 />
               </View>
-              <DatePicker
-                style={{ width: 200 }}
-                date={this.state.date}
-                mode="date"
-                placeholder="select date"
-                format="YYYY-MM-DD"
-                minDate="2016-05-01"
-                maxDate="2016-06-01"
-                confirmBtnText="Confirm"
-                cancelBtnText="Cancel"
-                customStyles={{
-                  dateIcon: {
-                    position: "absolute",
-                    left: 0,
-                    top: 4,
-                    marginLeft: 0
-                  },
-                  dateInput: {
-                    marginLeft: 36
-                  }
-                  // ... You can check the source to find the other keys.
-                }}
-                onDateChange={date => {
-                  this.setState({ date: date });
-                }}
-              />
               <Button
-                title="Search"
+                title="Filter"
                 onPress={this.reloadFilterDataByName.bind(
                   this,
-                  this.state.term
+                  this.state.term,
+                  this.state.date
                 )}
               />
-            </View>
-          </PopupDialog>
-          <FlatList
-            data={this.state.todoLists}
-            renderItem={({ item, separators, index }) => (
-              <FlatListItem
-                {...item}
-                itemIndex={index}
-                onPressItem={this.DeleteHandling.bind(this, item.id)}
-                EditClickHandler={this.EditHandling.bind(this, item)}
-              />
-            )}
-            keyExtractor={item => item.id.toString()}
-          />
-        </View>
-      </DrawerLayoutAndroid>
+              {this.state.FilterPointer ? null : (
+                <Button
+                  title="Remove Filter"
+                  color="red"
+                  onPress={this.unloadFilterDataByName.bind(this)}
+                />
+              )}
+            </Card>
+          </View>
+        </PopupDialog>
+
+        <PopupDialog
+          ref={popupDialogtwo => {
+            this.popupDialogtwo = popupDialogtwo;
+          }}
+          dialogAnimation={slideAnimation}
+          height={125}
+          width={185}
+        >
+          <View style={{ alignItems: "center" }}>
+            <Card>
+              <CardSection>
+                <Text style={{ paddingTop: 10, color: "teal", fontSize: 18 }}>
+                  Sort By Title -->
+                </Text>
+                <TouchableOpacity
+                  onPress={
+                    this.state.TitlePointer
+                      ? () => this.reloadTitleAscendingSorter()
+                      : () => this.reloadTitleDescendingSorter()
+                  }
+                >
+                  <Image
+                    style={styles.addButtonImage}
+                    source={
+                      //  sortState ? sorticon : sortDescIcon
+                      this.state.TitlePointer ? sorticon : sortDescIcon
+                    }
+                  />
+                </TouchableOpacity>
+              </CardSection>
+              <CardSection>
+                <Text style={{ paddingTop: 10, color: "teal", fontSize: 18 }}>
+                  Sort By Date -->
+                </Text>
+
+                <TouchableOpacity onPress={() => this.sortChecker()}>
+                  <Image
+                    style={styles.addButtonImage}
+                    source={
+                      //  sortState ? sorticon : sortDescIcon
+                      this.state.sorty ? sorticon : sortDescIcon
+                    }
+                  />
+                </TouchableOpacity>
+              </CardSection>
+            </Card>
+          </View>
+        </PopupDialog>
+
+        <FlatList
+          data={this.state.todoLists}
+          renderItem={({ item, separators, index }) => (
+            <FlatListItem
+              {...item}
+              itemIndex={index}
+              onPressItem={this.DeleteHandling.bind(this, item.id)}
+              EditClickHandler={this.EditHandling.bind(this, item)}
+            />
+          )}
+          keyExtractor={item => item.id.toString()}
+          //  onEndReachedThreshold={0.5}
+          //  onEndReached={this.LoadMore.bind(this)}
+        />
+      </View>
+      //  </DrawerLayoutAndroid>
     );
   }
 }
@@ -407,8 +647,21 @@ const styles = StyleSheet.create({
     borderColor: "black",
     borderWidth: 1,
     height: 37,
-    width: 120,
-    marginBottom: 25
+    width: 170,
+    marginBottom: 25,
+    width: 230,
+    shadowColor: "#000",
+    borderRadius: 5,
+    shadowOpacity: 0.2,
+    elevation: 3,
+    paddingLeft: 30,
+    fontSize: 14,
+    color: "purple"
+  },
+  addButtonImage: {
+    width: 42,
+    height: 42,
+    tintColor: "black"
   }
 });
 

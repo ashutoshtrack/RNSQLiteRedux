@@ -48,6 +48,7 @@ export const updateTodoList = todoList =>
             todoList.id
           );
           updatingTodoList.name = todoList.name;
+          updatingTodoList.creationDate = todoList.creationDate;
           resolve();
         });
       })

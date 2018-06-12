@@ -5,11 +5,14 @@ import {
   Text,
   View,
   TouchableOpacity,
+  KeyboardAvoidingView,
   YellowBox
 } from "react-native";
+import Custombutton from "./common/Custombutton";
 import { connect } from "react-redux";
 import * as actions from "../actions";
-
+import DatePicker from "react-native-datepicker";
+const today = new Date();
 YellowBox.ignoreWarnings([
   "Warning: isMounted(...) is deprecated",
   "Module RCTImageLoader"
@@ -17,7 +20,14 @@ YellowBox.ignoreWarnings([
 
 class TodoItemScreen extends Component {
   state = {
-    term: ""
+    term: "",
+    date:
+      today.getFullYear() +
+      "-" +
+      "0" +
+      (today.getMonth() + 1) +
+      "-" +
+      today.getDate()
   };
   //For Add Go Back
   goBack() {
@@ -27,7 +37,7 @@ class TodoItemScreen extends Component {
     }
     const { navigation } = this.props;
     navigation.goBack();
-    navigation.state.params.onSelect(this.state.term);
+    navigation.state.params.onSelect(this.state.term, this.state.date);
   }
 
   // For UPdate Go Back
@@ -42,7 +52,7 @@ class TodoItemScreen extends Component {
 
     const item = this.props.navigation.getParam("packetName", "psdfadfaf");
 
-    navigation.state.params.OnUpdate(this.state.term, item);
+    navigation.state.params.OnUpdate(this.state.term, item, this.state.date);
   }
 
   componentWillMount() {
@@ -69,24 +79,53 @@ class TodoItemScreen extends Component {
     //this.props.addnewTodo.bind(this, this.state.term)
 
     return (
-      <View style={styles.container}>
-        <Text>Title</Text>
+      <KeyboardAvoidingView style={styles.container} enabled>
         <TextInput
           style={styles.input}
           onChangeText={text => this.setState({ term: text })}
           value={this.state.term}
+          placeholder="Add Your Task Here"
           underlineColorAndroid={"transparent"}
         />
+
+        <DatePicker
+          style={{ width: 200 }}
+          date={this.state.date}
+          mode="date"
+          placeholder="select date"
+          format="YYYY-MM-DD"
+          minDate="2018-06-01"
+          maxDate="2018-06-30"
+          confirmBtnText="Confirm"
+          cancelBtnText="Cancel"
+          customStyles={{
+            dateIcon: {
+              position: "absolute",
+              left: 0,
+              top: 4,
+              marginLeft: 0
+            },
+            dateInput: {
+              marginLeft: 36,
+              marginBottom: 12,
+              elevation: 3,
+              backgroundColor: "tomato"
+            }
+            // ... You can check the source to find the other keys.
+          }}
+          onDateChange={date => {
+            this.setState({ date: date });
+          }}
+        />
+
         {itemId === true ? (
-          <TouchableOpacity onPress={this.UpdateGoBack.bind(this)}>
-            <Text style={styles.button}>Update</Text>
-          </TouchableOpacity>
+          <Custombutton onPressed={this.UpdateGoBack.bind(this)}>
+            Update
+          </Custombutton>
         ) : (
-          <TouchableOpacity onPress={this.goBack.bind(this)}>
-            <Text style={styles.button}>Add</Text>
-          </TouchableOpacity>
+          <Custombutton onPressed={this.goBack.bind(this)}>Add</Custombutton>
         )}
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }
@@ -103,13 +142,26 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    alignItems: "center"
+    alignItems: "center",
+    paddingTop: 50,
+    backgroundColor: "#8D6E63"
   },
   input: {
-    borderColor: "black",
-    borderWidth: 1,
-    height: 37,
-    width: "100%"
+    height: 50,
+    width: 300,
+    backgroundColor: "white",
+    color: "orange",
+    borderRadius: 15,
+    fontWeight: "bold",
+    alignContent: "center",
+    padding: 10,
+    paddingLeft: 12,
+    margin: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 2,
+    shadowOpacity: 0.3,
+    elevation: 7
   }
 });
 

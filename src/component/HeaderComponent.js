@@ -13,6 +13,7 @@ import addicon from "../../images/add-icon.png";
 import sorticon from "../../images/sort-asc-icon.png";
 import sortDescIcon from "../../images/sort-desc-icon.png";
 import searchIcon from "../../images/search.png";
+import sortMaster from "../../images/sortmaster.png";
 
 class HeaderComponent extends Component {
   render() {
@@ -26,6 +27,7 @@ class HeaderComponent extends Component {
       hasDeleteAllButton,
       navinavigate,
       sortMono,
+      sortpoppy,
       poppy
     } = this.props;
     return (
@@ -42,10 +44,19 @@ class HeaderComponent extends Component {
           </TouchableOpacity>
         )}
         {hasSortButton && (
-          <TouchableOpacity style={styles.addButton} onPress={sortMono}>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={
+              sortpoppy
+              //sortMono
+            }
+          >
             <Image
               style={styles.addButtonImage}
-              source={sortState ? sorticon : sortDescIcon}
+              source={
+                //  sortState ? sorticon : sortDescIcon
+                sortMaster
+              }
             />
           </TouchableOpacity>
         )}
@@ -65,7 +76,11 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "center",
     backgroundColor: "teal",
-    height: Platform.OS === "ios" ? 100 : 80
+    height: Platform.OS === "ios" ? 100 : 80,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    elevation: 7
   },
   titleText: {
     color: "white",

@@ -9,6 +9,7 @@ import {
   TouchableHighlight
 } from "react-native";
 import Swipeout from "react-native-swipeout";
+import Card from "./common/Card";
 
 const FlatListItem = props => {
   const {
@@ -20,11 +21,6 @@ const FlatListItem = props => {
     onPressItem,
     EditClickHandler
   } = props;
-  var swipeoutBtns = [
-    {
-      text: "Update"
-    }
-  ];
 
   return (
     <Swipeout
@@ -44,18 +40,31 @@ const FlatListItem = props => {
       autoClose={true}
     >
       <TouchableHighlight>
-        <View
-          style={{
-            backgroundColor: itemIndex % 2 == 0 ? "powderblue" : "skyblue"
-          }}
-        >
-          <Text style={{ fontWeight: "bold", fontSize: 18, margin: 10 }}>
-            {name}
-          </Text>
-          <Text style={{ fontSize: 18, margin: 10 }} numberOfLines={2}>
-            {creationDate.toLocaleString()}
-          </Text>
-        </View>
+        <Card>
+          <View
+            style={{
+              backgroundColor: itemIndex % 2 == 0 ? "#E1BEE7" : "#FFCC80"
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: "Comic Sans MS",
+
+                fontSize: 21,
+                margin: 10,
+                elevation: 7
+              }}
+            >
+              {name}
+            </Text>
+            <Text
+              style={{ fontSize: 18, margin: 10, color: "#1A237E" }}
+              numberOfLines={2}
+            >
+              {creationDate.toLocaleString()}
+            </Text>
+          </View>
+        </Card>
       </TouchableHighlight>
     </Swipeout>
   );
