@@ -26,6 +26,7 @@ const styles = {
     borderRadius: 15,
     borderWidth: 1,
     borderColor: "#007aff",
+    marginTop: 5,
     marginLeft: 5,
     marginRight: 5,
     shadowColor: "#000",

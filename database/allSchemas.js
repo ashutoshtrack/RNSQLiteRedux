@@ -81,11 +81,14 @@ export const deleteAllTodoLists = () =>
       })
       .catch(error => reject(error));
   });
-export const queryAllTodoLists = () =>
+export const queryAllTodoLists = (sliceStartIndex, sliceUptoIndex) =>
   new Promise((resolve, reject) => {
     Realm.open(databaseOptions)
       .then(realm => {
-        let allTodoLists = realm.objects(TODOLIST_SCHEMA);
+        let allTodoLists = realm
+          .objects(TODOLIST_SCHEMA)
+          .slice(sliceStartIndex, sliceUptoIndex);
+
         resolve(allTodoLists);
       })
       .catch(error => {

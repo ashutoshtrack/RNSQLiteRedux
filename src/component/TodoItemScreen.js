@@ -2,16 +2,20 @@ import React, { Component } from "react";
 import {
   TextInput,
   StyleSheet,
+  Image,
   Text,
   View,
   TouchableOpacity,
   KeyboardAvoidingView,
   YellowBox
 } from "react-native";
+
 import Custombutton from "./common/Custombutton";
 import { connect } from "react-redux";
 import * as actions from "../actions";
 import DatePicker from "react-native-datepicker";
+import sorticon from "../../images/chies.jpg";
+
 const today = new Date();
 YellowBox.ignoreWarnings([
   "Warning: isMounted(...) is deprecated",
@@ -62,21 +66,52 @@ class TodoItemScreen extends Component {
     );
     const item = this.props.navigation.getParam("packetName", "psdfadfaf");
 
+    if (new Date(item.creationDate).getDate() + 1 < 10) {
+      var tempupdatedDate =
+        new Date(item.creationDate).getFullYear() +
+        "-" +
+        "0" +
+        (new Date(item.creationDate).getMonth() + 1) +
+        "-" +
+        "0" +
+        new Date(item.creationDate).getDate();
+    } else {
+      tempupdatedDate =
+        new Date(item.creationDate).getFullYear() +
+        "-" +
+        "0" +
+        (new Date(item.creationDate).getMonth() + 1) +
+        "-" +
+        new Date(item.creationDate).getDate();
+    }
+
     if (itemId !== "alksjalkdjfdlkjgakfj") {
-      this.setState({ term: item.name });
+      this.setState({ term: item.name, date: tempupdatedDate });
     }
   }
-  componentWillReceiveProps() {}
 
+  /*   shouldComponentUpdate(nextProps, nextState) {
+    console.log(nextProps);
+    console.log("next", nextState.date);
+
+    var tempupdatedDate =
+      new Date(nextState.date).getFullYear() +
+      "-" +
+      "0" +
+      (new Date(nextState.date).getMonth() + 1) +
+      "-" +
+      new Date(nextState.date).getDate();
+
+    console.log("nexty", tempupdatedDate);
+
+    console.log("this", this.state.date);
+
+    return this.state.date !== tempupdatedDate;
+  }
+ */
   render() {
     const { navigate } = this.props.navigation;
     const itemId = this.props.navigation.getParam("updateEdit", "Bool");
-    const TitleName = this.props.navigation.getParam(
-      "packetName",
-      "alksjalkdjfdlkjgakfj"
-    );
-
-    //this.props.addnewTodo.bind(this, this.state.term)
 
     return (
       <KeyboardAvoidingView style={styles.container} enabled>
@@ -87,37 +122,39 @@ class TodoItemScreen extends Component {
           placeholder="Add Your Task Here"
           underlineColorAndroid={"transparent"}
         />
-
-        <DatePicker
-          style={{ width: 200 }}
-          date={this.state.date}
-          mode="date"
-          placeholder="select date"
-          format="YYYY-MM-DD"
-          minDate="2018-06-01"
-          maxDate="2018-06-30"
-          confirmBtnText="Confirm"
-          cancelBtnText="Cancel"
-          customStyles={{
-            dateIcon: {
-              position: "absolute",
-              left: 0,
-              top: 4,
-              marginLeft: 0
-            },
-            dateInput: {
-              marginLeft: 36,
-              marginBottom: 12,
-              elevation: 3,
-              backgroundColor: "tomato"
-            }
-            // ... You can check the source to find the other keys.
-          }}
-          onDateChange={date => {
-            this.setState({ date: date });
-          }}
-        />
-
+        <View style={{ margin: 5 }}>
+          <DatePicker
+            style={{ width: 200 }}
+            date={this.state.date}
+            mode="date"
+            placeholder="select date"
+            format="YYYY-MM-DD"
+            minDate="2018-06-01"
+            maxDate="2018-06-30"
+            confirmBtnText="Confirm"
+            cancelBtnText="Cancel"
+            customStyles={{
+              dateIcon: {
+                position: "absolute",
+                left: 0,
+                top: 4,
+                marginLeft: 0
+              },
+              dateInput: {
+                marginLeft: 36,
+                marginBottom: 12,
+                elevation: 3,
+                backgroundColor: "white",
+                borderRadius: 5,
+                paddingTop: 3
+              }
+              // ... You can check the source to find the other keys.
+            }}
+            onDateChange={date => {
+              this.setState({ date: date });
+            }}
+          />
+        </View>
         {itemId === true ? (
           <Custombutton onPressed={this.UpdateGoBack.bind(this)}>
             Update
@@ -144,6 +181,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingTop: 50,
+
     backgroundColor: "#8D6E63"
   },
   input: {

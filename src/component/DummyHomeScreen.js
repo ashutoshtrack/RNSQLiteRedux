@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import {
   Platform,
   StyleSheet,
@@ -14,7 +14,6 @@ import {
   KeyboardAvoidingView,
   TextInput
 } from "react-native";
-
 import { TextField } from "react-native-material-textfield";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import DatePicker from "react-native-datepicker";
@@ -34,8 +33,7 @@ import PopupDialog, { slideAnimation } from "react-native-popup-dialog";
 import HeaderComponent from "./HeaderComponent";
 import FlatListItem from "./FlatListItem";
 const today = new Date();
-const countey = 0;
-class HomeScreen extends Component {
+class HomeScreen extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -51,7 +49,6 @@ class HomeScreen extends Component {
       prevsliceUptoIndex: 5,
       //Pagination end concept trials end
       LoadMore: false,
-      LoadFlag: true,
       date:
         today.getFullYear() +
         "-" +
@@ -61,7 +58,6 @@ class HomeScreen extends Component {
         today.getDate()
     };
     this.reloadData();
-    // alert("something");
     realm.addListener("change", () => {
       this.reloadData();
     });
@@ -78,9 +74,6 @@ class HomeScreen extends Component {
     queryAllTodoLists(0, this.state.sliceUptoIndex)
       .then(todoLists => {
         var newArrayDataOfOjbect = Object.values(todoLists);
-        /*     console.log(newArrayDataOfOjbect, "slickecheck");
-        alert(this.state.sliceStartIndex);
-        alert(JSON.stringify(newArrayDataOfOjbect)); */
         /*     newArrayDataOfOjbect.sort(function(a, b) {
           var dateA = new Date(a.creationDate),
             dateB = new Date(b.creationDate);
@@ -95,22 +88,11 @@ class HomeScreen extends Component {
           );
         } */
         //        console.log(newArrayDataOfOjbect);
-
-        /*  if (this.state.sliceStartIndex === 0) {
-          alert("here oned");
-          this.setState({
-            todoLists: newArrayDataOfOjbect,
-            FilterPointer: true
-            // LoadMore: !prevState.LoadMore
-          });
-        } else { */
-        // alert("here second");
         this.setState(prevState => ({
           todoLists: newArrayDataOfOjbect,
           FilterPointer: true
           // LoadMore: !prevState.LoadMore
         }));
-        //   }
       })
       .catch(error => {
         alert("Error");
@@ -118,11 +100,6 @@ class HomeScreen extends Component {
       });
   };
 
-  /*   shouldComponentUpdate(nextProps, nextState) {
-
-    return this.state.todoLists !== nextState.todoLists;
-  }
- */
   AddHandler = (namer, dater) => {
     //  navigate("Tada");
 
@@ -233,10 +210,8 @@ class HomeScreen extends Component {
     var count = realm.objects("TodoList").length;
     //ToastAndroid.show("Loaded More", ToastAndroid.SHORT);
     console.log("load fire", count);
-
     if (this.state.sliceUptoIndex <= count + 5) {
       this.setState({
-        //  sliceStartIndex: this.state.sliceStartIndex + 5,
         sliceUptoIndex: this.state.sliceUptoIndex + 5
       });
 
@@ -514,7 +489,7 @@ class HomeScreen extends Component {
     ToastAndroid.show("Removed", ToastAndroid.SHORT);
   };
   checker = () => {
-    //    alert("fireda");
+    h; //    alert("fireda");
     this.state.FilterPointer ? this.LoadMore() : null;
   };
   render() {
@@ -736,8 +711,8 @@ class HomeScreen extends Component {
             />
           )}
           keyExtractor={item => item.id.toString()}
-          onEndReachedThreshold={1}
-          onEndReached={this.checker.bind(this)}
+          onEndReachedThreshold={0.5}
+          onEndReached={this.checker.bind()}
         />
       </View>
       //  </DrawerLayoutAndroid>
