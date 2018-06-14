@@ -31,11 +31,17 @@ import {
   insertNewTodoList
 } from "../../database/allSchemas";
 import realm from "../../database/allSchemas";
-import PopupDialog, { slideAnimation } from "react-native-popup-dialog";
+import PopupDialog, { SlideAnimation } from "react-native-popup-dialog";
 import HeaderComponent from "./HeaderComponent";
 import FlatListItem from "./FlatListItem";
 const today = new Date();
 const countey = 0;
+const slideAnimation = new SlideAnimation({
+  slideFrom: "bottom"
+});
+const slideAnimation2 = new SlideAnimation({
+  slideFrom: "right"
+});
 class HomeScreen extends Component {
   constructor(props) {
     super(props);
@@ -404,31 +410,61 @@ class HomeScreen extends Component {
         "-" +
         (new Date(date).getDate() + 1);
     }
-
     let tempFilter = [];
+    let Drag = 0;
+    if (new Date(date).getDate() === 30) {
+      tempupdatedDate =
+        new Date(date).getFullYear() +
+        "-" +
+        "0" +
+        (new Date(date).getMonth() + 1) +
+        "-" +
+        (new Date(date).getDate() - 1);
+
+      ///alert(new Date(date).getDate()-1 + "Date");
+      //  alert(new Date(tempupdatedDate));
+      tempFiltere = realm
+        .objects("TodoList")
+        .filtered(
+          "creationDate > $0 && creationDate <= $1",
+          new Date(tempupdatedDate),
+          new Date(date)
+        );
+      Drag = 1;
+    }
+
     let flag = 0;
     console.log(date, "simple");
     console.log(tempupdatedDate, "tud");
     console.log(new Date(date), "Date");
     console.log(new Date(tempupdatedDate), "Tempdate");
     if (name === "") {
-      tempFilter = realm
-        .objects("TodoList")
-        .filtered(
-          "creationDate >= $0 && creationDate < $1",
-          new Date(date),
-          new Date(tempupdatedDate)
-        );
+      if (Drag === 1) {
+        tempFilter = tempFiltere;
+      } else {
+        tempFilter = realm
+          .objects("TodoList")
+          .filtered(
+            "creationDate >= $0 && creationDate < $1",
+            new Date(date),
+            new Date(tempupdatedDate)
+          );
+      }
     } else {
-      tempFilter = realm
-        .objects("TodoList")
-        .filtered(
-          "creationDate >= $0 && creationDate < $1 AND name = $2",
-          new Date(date),
-          new Date(tempupdatedDate),
-          name
-        );
+      if (Drag === 1) {
+        tempFilter = tempFiltere;
+      } else {
+        tempFilter = realm
+          .objects("TodoList")
+          .filtered(
+            "creationDate >= $0 && creationDate < $1 AND name = $2",
+            new Date(date),
+            new Date(tempupdatedDate),
+            name
+          );
+      }
     }
+    Drag = 0;
     console.log(tempFilter);
 
     if (tempFilter.length === 0) {
@@ -455,6 +491,9 @@ class HomeScreen extends Component {
         name
       ); */
     var updatedTempFilter = Object.values(tempFilter);
+
+    // updatedTempFilter = Object.values(tempFiltere);
+
     // console.log(new Date(date));
 
     this.setState({
@@ -594,24 +633,27 @@ class HomeScreen extends Component {
           ref={popupDialog => {
             this.popupDialog = popupDialog;
           }}
+          slideFrom={"right"}
+          animationDuration={1000}
           dialogAnimation={slideAnimation}
           height={this.state.FilterPointer ? 230 : 260}
           containerStyle={{ paddingBottom: 180 }}
         >
           <View style={{ alignItems: "center" }}>
-            <Card>
-              <Text
-                style={{
-                  color: "tomato",
-                  fontSize: 30,
-                  marginBottom: 10,
-                  marginLeft: 5,
-                  marginRight: 5
-                }}
-              >
-                Filter Your Search
-              </Text>
-            </Card>
+            <Text
+              style={{
+                color: "tomato",
+                fontSize: 30,
+                marginBottom: 10,
+                marginLeft: 5,
+                marginRight: 5,
+                marginTop: 7,
+                fontStyle: "italic"
+              }}
+            >
+              Just Filter
+            </Text>
+
             <Card>
               <View style={{ flexDirection: "row" }}>
                 {/*   <View>
@@ -681,7 +723,7 @@ class HomeScreen extends Component {
           ref={popupDialogtwo => {
             this.popupDialogtwo = popupDialogtwo;
           }}
-          dialogAnimation={slideAnimation}
+          dialogAnimation={slideAnimation2}
           height={125}
           width={185}
         >
@@ -769,6 +811,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     paddingLeft: 30,
     fontSize: 14,
+    fontStyle: "italic",
     color: "purple"
   },
   addButtonImage: {
