@@ -14,6 +14,7 @@ import {
   KeyboardAvoidingView,
   TextInput
 } from "react-native";
+import * as Animatable from "react-native-animatable";
 
 import { TextField } from "react-native-material-textfield";
 import KeyboardSpacer from "react-native-keyboard-spacer";

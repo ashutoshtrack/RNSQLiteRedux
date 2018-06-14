@@ -53,6 +53,7 @@
 		A8A37B28BA3B422484024B8B /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 83B05A937D2E4A05BA31A9E2 /* Zocial.ttf */; };
 		9C676E97877642E18CA0F99D /* libBVLinearGradient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B45F047D46E4417B7EE557B /* libBVLinearGradient.a */; };
 		8D93121DF232488CA15C8D2A /* libRNPhotoView.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B8788BD810D4829865EDAD1 /* libRNPhotoView.a */; };
+		02183D3D283E4B7895D21A20 /* Feather.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0B205132A5064B9EA5CB6528 /* Feather.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -378,6 +379,7 @@
 		0B45F047D46E4417B7EE557B /* libBVLinearGradient.a */ = {isa = PBXFileReference; name = "libBVLinearGradient.a"; path = "libBVLinearGradient.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		4C5004382CAA4A2394375B22 /* RNPhotoView.xcodeproj */ = {isa = PBXFileReference; name = "RNPhotoView.xcodeproj"; path = "../node_modules/react-native-photo-view/ios/RNPhotoView.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		3B8788BD810D4829865EDAD1 /* libRNPhotoView.a */ = {isa = PBXFileReference; name = "libRNPhotoView.a"; path = "libRNPhotoView.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		0B205132A5064B9EA5CB6528 /* Feather.ttf */ = {isa = PBXFileReference; name = "Feather.ttf"; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -665,6 +667,7 @@
 				E5F11F820EB84A00B67AB1A1 /* Octicons.ttf */,
 				7DEA1494E46C438683388DCF /* SimpleLineIcons.ttf */,
 				83B05A937D2E4A05BA31A9E2 /* Zocial.ttf */,
+				0B205132A5064B9EA5CB6528 /* Feather.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1126,6 +1129,7 @@
 				3CC58EA7951B4F499A1B9F92 /* Octicons.ttf in Resources */,
 				F7B9D7FD205A469FB85B6678 /* SimpleLineIcons.ttf in Resources */,
 				A8A37B28BA3B422484024B8B /* Zocial.ttf in Resources */,
+				02183D3D283E4B7895D21A20 /* Feather.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

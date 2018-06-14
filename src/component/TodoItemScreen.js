@@ -1,20 +1,23 @@
 import React, { Component } from "react";
 import {
+  ImageBackground,
   TextInput,
   StyleSheet,
-  Image,
+  ImageBackgroundComponent,
   Text,
   View,
   TouchableOpacity,
   KeyboardAvoidingView,
   YellowBox
 } from "react-native";
-
+import * as Animatable from "react-native-animatable";
 import Custombutton from "./common/Custombutton";
 import { connect } from "react-redux";
 import * as actions from "../actions";
 import DatePicker from "react-native-datepicker";
-import sorticon from "../../images/chies.jpg";
+import sorticon from "../../images/wood2.jpg";
+import { Tile, Input } from "react-native-elements";
+import CardDouble from "./common/CardDouble";
 
 const today = new Date();
 YellowBox.ignoreWarnings([
@@ -114,14 +117,24 @@ class TodoItemScreen extends Component {
     const itemId = this.props.navigation.getParam("updateEdit", "Bool");
 
     return (
-      <KeyboardAvoidingView style={styles.container} enabled>
-        <TextInput
-          style={styles.input}
-          onChangeText={text => this.setState({ term: text })}
-          value={this.state.term}
-          placeholder="Add Your Task Here"
-          underlineColorAndroid={"transparent"}
-        />
+      <ImageBackground source={sorticon} style={styles.container}>
+        <Animatable.View
+          animation="pulse"
+          easing="ease-out"
+          iterationCount={2}
+          delay={2000}
+          //  iterationCount={2}
+        >
+          <View>
+            <TextInput
+              style={styles.input}
+              onChangeText={text => this.setState({ term: text })}
+              value={this.state.term}
+              placeholder="Add Your Task Here"
+              underlineColorAndroid={"transparent"}
+            />
+          </View>
+        </Animatable.View>
         <View style={{ margin: 5 }}>
           <DatePicker
             style={{ width: 200 }}
@@ -155,14 +168,27 @@ class TodoItemScreen extends Component {
             }}
           />
         </View>
-        {itemId === true ? (
-          <Custombutton onPressed={this.UpdateGoBack.bind(this)}>
-            Update
-          </Custombutton>
-        ) : (
-          <Custombutton onPressed={this.goBack.bind(this)}>Add</Custombutton>
-        )}
-      </KeyboardAvoidingView>
+        <Animatable.View
+          animation="bounceInDown"
+          easing="ease-out"
+          style={{ width: "100%" }}
+          delay={1000}
+        >
+          {itemId === true ? (
+            <Custombutton onPressed={this.UpdateGoBack.bind(this)}>
+              Update
+            </Custombutton>
+          ) : (
+            <Custombutton onPressed={this.goBack.bind(this)}>Add</Custombutton>
+          )}
+        </Animatable.View>
+        <Tile
+          imageSrc={sorticon}
+          title="First Solve The Problem Then Write the Code"
+          featured
+          caption="- John Johnson"
+        />
+      </ImageBackground>
     );
   }
 }
@@ -181,7 +207,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingTop: 50,
-
+    position: "absolute",
     backgroundColor: "#8D6E63"
   },
   input: {
@@ -191,6 +217,7 @@ const styles = StyleSheet.create({
     color: "orange",
     borderRadius: 15,
     fontWeight: "bold",
+
     alignContent: "center",
     padding: 10,
     paddingLeft: 12,
@@ -200,6 +227,10 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     shadowOpacity: 0.3,
     elevation: 7
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover" // or 'stretch'
   }
 });
 

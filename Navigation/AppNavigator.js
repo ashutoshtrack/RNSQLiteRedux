@@ -16,7 +16,11 @@ export const AppNavigator = createStackNavigator({
   Tada: {
     screen: TodoItemScreen,
     navigationOptions: {
-      title: "Todo Item"
+      title: "Todo Item",
+
+      titleStyle: {
+        backgroundColor: "red"
+      }
     }
   }
 });
