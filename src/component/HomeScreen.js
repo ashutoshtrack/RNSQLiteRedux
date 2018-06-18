@@ -28,9 +28,17 @@ import {
   updateTodoList,
   deleteTodoList,
   queryAllTodoLists,
-  insertNewTodoList
-} from "../../database/allSchemas";
-import realm from "../../database/allSchemas";
+  insertNewTodoList,
+  filterByDate,
+  filterByName,
+  sortByNameAsc,
+  sortByNameDesc,
+  sortByDateAsc,
+  sortByDateDsc,
+  getLastInsertedId,
+  getLastInsertedIdtwo
+} from "../../database/sqliteSchema";
+//import realm from "../../database/allSchemas";
 import PopupDialog, { SlideAnimation } from "react-native-popup-dialog";
 import HeaderComponent from "./HeaderComponent";
 import FlatListItem from "./FlatListItem";
@@ -65,13 +73,11 @@ class HomeScreen extends Component {
         "0" +
         (today.getMonth() + 1) +
         "-" +
-        today.getDate()
+        today.getDate(),
+      // Pagination Trials continuation for Sqlite
+      initialuserId: 0
     };
     this.reloadData();
-    // alert("something");
-    realm.addListener("change", () => {
-      this.reloadData();
-    });
   }
 
   componentDidUpdate() {
@@ -79,45 +85,30 @@ class HomeScreen extends Component {
   }
 
   reloadData = () => {
-    /* let sortFilu = realm.objects("TodoList").sorted("creationDate", false);
-    var newArrayDataOfOjbect = Object.values(sortFilu); */
-
-    queryAllTodoLists(0, this.state.sliceUptoIndex)
+    queryAllTodoLists(this.state.initialuserId)
       .then(todoLists => {
-        var newArrayDataOfOjbect = Object.values(todoLists);
-        /*     console.log(newArrayDataOfOjbect, "slickecheck");
-        alert(this.state.sliceStartIndex);
-        alert(JSON.stringify(newArrayDataOfOjbect)); */
-        /*     newArrayDataOfOjbect.sort(function(a, b) {
-          var dateA = new Date(a.creationDate),
-            dateB = new Date(b.creationDate);
-          return dateB - dateA; //sort by date ascending
-        }); */
-        console.log(this.state.sliceStartIndex, "slicestrt");
-        console.log(this.state.sliceUptoIndex, "sliceUpto");
-        console.log(this.state.prevsliceUptoIndex, "prev");
-        /*        if (this.state.sliceStartIndex === this.state.prevsliceUptoIndex) {
-          newArrayDataOfOjbect = newArrayDataOfOjbect.concat(
-            Object.values(todoLists)
-          );
-        } */
-        //        console.log(newArrayDataOfOjbect);
+        var newArrayDataOfOjbect = todoLists;
 
-        /*  if (this.state.sliceStartIndex === 0) {
-          alert("here oned");
-          this.setState({
-            todoLists: newArrayDataOfOjbect,
-            FilterPointer: true
-            // LoadMore: !prevState.LoadMore
-          });
-        } else { */
-        // alert("here second");
+        //  newArrayDataOfOjbect.concat(todoLists);
+
+        //   console.log(newArrayDataOfOjbect, "Sdfdssf");
+        console.log("triggered", todoLists);
+
+        /* var newArray = this.state.todoLists.concat(todoLists);
+
+          var uniqueNames = [];
+          $.each(newArray, function(i, el) {
+            if ($.inArray(el, uniqueNames) === -1) uniqueNames.push(el);
+          }); */
+
+        //  console.log(uniqueNames, "ydff");
+
+        //  console.log(uniqueNames, "sddf");
         this.setState(prevState => ({
-          todoLists: newArrayDataOfOjbect,
+          todoLists: this.state.todoLists.concat(todoLists),
+          initialuserId: this.state.initialuserId + 8,
           FilterPointer: true
-          // LoadMore: !prevState.LoadMore
         }));
-        //   }
       })
       .catch(error => {
         alert("Error");
@@ -125,38 +116,35 @@ class HomeScreen extends Component {
       });
   };
 
-  /*   shouldComponentUpdate(nextProps, nextState) {
-
-    return this.state.todoLists !== nextState.todoLists;
-  }
- */
   AddHandler = (namer, dater) => {
     //  navigate("Tada");
 
     var todayMate = new Date();
-    /*     var updatedDate =
-      (todayMate.getFullYear()) +
-      "-" +
-      "0" +
-      (todayMate.getMonth() + 1) +
-      "-" +
-      todayMate.getDate(); */
-    /*   alert(updatedDate); */
+
     const newTodoList = {
       id: Math.floor(Date.now() / 1000),
       name: namer,
       creationDate: dater
     };
     insertNewTodoList(newTodoList)
-      .then()
+      .then(res => {
+        this.setState({ todoLists: res });
+      })
       .catch(error => {
         alert(`Insert new todoList error ${error}`);
       });
   };
+  /*   shouldComponentUpdate(nextProps, nextState) {
+    console.log(nextState);
+
+    return nextState.initialuserId <= this.state.initialuserId;
+  } */
 
   DeleteHandler = id => {
     deleteTodoList(id)
-      .then()
+      .then(res => {
+        this.setState({ todoLists: res });
+      })
       .catch(error => {
         alert(`Insert new todoList error ${error}`);
       });
@@ -172,7 +160,7 @@ class HomeScreen extends Component {
     } else {
       updatedCreationDate = item.creationDate;
     }
-    console.log(updatedCreationDate, "upfts");
+    // console.log(updatedCreationDate, "upfts");
     const newTodoList = {
       id: item.id,
       name: namer,
@@ -180,7 +168,9 @@ class HomeScreen extends Component {
     };
 
     updateTodoList(newTodoList)
-      .then()
+      .then(res => {
+        this.setState({ todoLists: res });
+      })
       .catch(error => {
         alert(`Insert new todoList error ${error}`);
       });
@@ -237,56 +227,89 @@ class HomeScreen extends Component {
   };
 
   LoadMore = () => {
-    var count = realm.objects("TodoList").length;
+    //  alert("loadMore");
+    // let count = null;
+    getLastInsertedId()
+      .then(res => {
+        if (this.state.initialuserId < res) {
+          ToastAndroid.show("Loaded More", ToastAndroid.SHORT);
+          //   this.setState({});
+          // alert(this.state.initialuserId);
+
+          this.reloadData();
+        }
+      })
+      .catch(err => alert(error));
+
     //ToastAndroid.show("Loaded More", ToastAndroid.SHORT);
+    /*     var count = realm.objects("TodoList").length;
+
     console.log("load fire", count);
 
     if (this.state.sliceUptoIndex <= count + 5) {
       this.setState({
-        //  sliceStartIndex: this.state.sliceStartIndex + 5,
         sliceUptoIndex: this.state.sliceUptoIndex + 5
       });
 
       this.reloadData();
       ToastAndroid.show("Loaded More", ToastAndroid.SHORT);
-    }
-
-    /*  if (this.state.sliceUptoIndex) {
-      this.setState(prevState => ({
-        sliceStartIndex: prevState.sliceStartIndex + 5,
-        sliceUptoIndex: prevState.sliceUptoIndex + 5,
-        prevsliceUptoIndex: this.state.sliceUptoIndex
-      }));
-
-      console.log("LoadMore Fired");
-      //this.reloadData();
     } */
-    /*  if (this.state.LoadMore) {
-      ToastAndroid.show("Loaded More", ToastAndroid.SHORT);
+    /*  if (this.state.initialuserId < 15) {
+      getLastInsertedId()
+        .then(res => {
+          console.log("getter ", res); */
+    // console.log(this.state.initialuserId);
+    //  if (this.state.initialuserId <= res) {
+    /*  queryAllTodoLists(this.state.initialuserId)
+            .then(todoLists => {
+              //  var newArrayDataOfOjbect = newArrayDataOfOjbect.concat(todoLists);
 
-      this.setState({ slicePeice: 10 });
-      this.reloadData();
-      this.setState({ LoadMore: false });
+              this.setState(prevState => ({
+                todoLists: todoLists,
+                FilterPointer: true
+              }));
+            })
+            .catch(error => {
+              alert("Error");
+              this.setState({ todoLists: [] });
+            }); */
+    /*             this.setState({ initialuserId: this.state.initialuserId + 10 });
+            this.reloadData();
+          }
+        })
+
+        .catch(error => {
+          alert(JSON.stringify(error));
+        });
     } */
-
-    //console.log(this.state.)
+    /*  getLastInsertedIdtwo()
+      .then(res => console.log(res))
+      .catch(err => alert(error)); */
   };
 
   //Sorts Defined bel0w
 
   reloadSorty = () => {
-    let sortFilu = realm.objects("TodoList").sorted("creationDate", false);
+    /*     let sortFilu = realm.objects("TodoList").sorted("creationDate", false);
     var newArrayDataOfOjbect = Object.values(sortFilu);
-
-    // var newArrayDataOfOjbect = Object.values(todoLists);
 
     this.setState({
       todoLists: newArrayDataOfOjbect,
       FilterPointer: true,
       sorty: true,
       LoadMore: false
-    });
-    //   });
+    }); */
+
+    sortByDateAsc()
+      .then(res => {
+        this.setState({
+          todoLists: res,
+          FilterPointer: true,
+          sorty: true,
+          LoadMore: false
+        });
+      })
+      .catch(err => alert("SORT ASC error"));
   };
 
   sortChecker = () => {
@@ -295,62 +318,35 @@ class HomeScreen extends Component {
     } else {
       this.reloadSorty();
     }
-    //alert(this.state.sorty);
-    /*  this.setState(prevState => ({
-      sorty: !prevState.sorty
-    })); */
   };
 
   reloadDescData = () => {
-    let sortFilu = realm.objects("TodoList").sorted("creationDate", true);
+    sortByDateDsc()
+      .then(res => {
+        this.setState({
+          todoLists: res,
+          FilterPointer: true,
+          sorty: false,
+          LoadMore: false
+        });
+      })
+      .catch(err => alert("SORT desc error"));
 
-    // console.log(sortFilu, "sortFilu");
-    /* queryAllTodoLists()
-      .then(todoLists => { */
+    /*  let sortFilu = realm.objects("TodoList").sorted("creationDate", true);
+
     var newArrayDataOfOjbect = Object.values(sortFilu);
-    /*    newArrayDataOfOjbect.sort(function(a, b) {
-          var dateA = new Date(a.creationDate),
-            dateB = new Date(b.creationDate);
-          return dateA - dateB; //sort by date desc
-        }); */
+
     this.setState({
       todoLists: newArrayDataOfOjbect,
       FilterPointer: true,
       sorty: false,
       LoadMore: false
-    });
-    /*    })
-      .catch(error => {
-        alert("Error");
-        this.setState({ todoLists: [] });
-     });*/
+    }); */
   };
 
   reloadTitleAscendingSorter = () => {
-    let sortTitle = realm.objects("TodoList").sorted("name", true);
+    /*    let sortTitle = realm.objects("TodoList").sorted("name", true);
     let newArrayDataOfOjbect = Object.values(sortTitle);
-    /*  this.setState({
-      todoLists: newArrayDataOfOjbect,
-      FilterPointer: true
-    }); */
-    /*   queryAllTodoLists()
-      .then(todoLists => {
-        var newArrayDataOfOjbect = Object.values(todoLists);
-        newArrayDataOfOjbect.sort(function(a, b) {
-          var nameA = a.name.toLowerCase(),
-            nameB = b.name.toLowerCase();
-          if (nameA < nameB)
-            //sort string ascending
-            return -1;
-          if (nameA > nameB) return 1;
-          return 0; //default return value (no sorting)
-        });
-        this.setState({ todoLists: newArrayDataOfOjbect, FilterPointer: true });
-      })
-      .catch(error => {
-        alert("Error");
-        this.setState({ todoLists: [] });
-      }); */
 
     this.setState(prevState => ({
       todoLists: newArrayDataOfOjbect,
@@ -359,40 +355,109 @@ class HomeScreen extends Component {
       LoadMore: false
     }));
 
-    ToastAndroid.show("Sorted By Names Z-A", ToastAndroid.SHORT);
+    ToastAndroid.show("Sorted By Names Z-A", ToastAndroid.SHORT); */
+    //  alert("Ascending Sorter");
+
+    sortByNameAsc()
+      .then(res => {
+        this.setState(prevState => ({
+          todoLists: res,
+          FilterPointer: true,
+          TitlePointer: !prevState.TitlePointer,
+          LoadMore: false
+        }));
+        ToastAndroid.show("Sorted By Names A-Z", ToastAndroid.SHORT);
+      })
+      .catch(error => {
+        alert(`Insert new todoList error ${error}`);
+      });
   };
 
   reloadTitleDescendingSorter = () => {
-    /*     queryAllTodoLists()
-      .then(todoLists => {
-        var newArrayDataOfOjbect = Object.values(todoLists);
-        newArrayDataOfOjbect.sort(function(a, b) {
-          var nameA = a.name.toLowerCase(),
-            nameB = b.name.toLowerCase();
-          if (nameA < nameB)
-            //sort string ascending
-            return 1;
-          if (nameA > nameB) return -1;
-          return 0; //default return value (no sorting)
-        });
-        this.setState({ todoLists: newArrayDataOfOjbect });
+    sortByNameDesc()
+      .then(res => {
+        this.setState(prevState => ({
+          todoLists: res,
+          FilterPointer: true,
+          TitlePointer: !prevState.TitlePointer,
+          LoadMore: false
+        }));
+        ToastAndroid.show("Sorted By Names Z-A", ToastAndroid.SHORT);
       })
       .catch(error => {
-        alert("Error");
-        this.setState({ todoLists: [] });
-      }); */
-    let sortTitleDesc = realm.objects("TodoList").sorted("name", false);
+        alert(`Insert new todoList error ${error}`);
+      });
+
+    /*  let sortTitleDesc = realm.objects("TodoList").sorted("name", false);
     let newArrayDataOfOjbect = Object.values(sortTitleDesc);
+
 
     this.setState(prevState => ({
       todoLists: newArrayDataOfOjbect,
       TitlePointer: !prevState.TitlePointer,
       LoadMore: false
     }));
-    ToastAndroid.show("Sorted By Desc A-Z", ToastAndroid.SHORT);
+    ToastAndroid.show("Sorted By Desc A-Z", ToastAndroid.SHORT); */
   };
   reloadFilterDataByName = (name, date) => {
-    if (new Date(date).getDate() + 1 < 10) {
+    var tempFilter = [];
+    var flag = 0;
+
+    filterByDate(name, date)
+      .then(res => {
+        tempFilter = res;
+
+        if (tempFilter.length === 0) {
+          filterByName(name)
+            .then(res => {
+              tempFilter = res;
+
+              if (tempFilter.length === 0) {
+                return ToastAndroid.show("No Results", ToastAndroid.SHORT);
+              } else {
+                flag = 1;
+              }
+              if (flag === 1) {
+                ToastAndroid.show(
+                  "Found Dated " + new Date(date).getDate(),
+                  ToastAndroid.LONG
+                );
+              } else {
+                ToastAndroid.show("Filtered", ToastAndroid.SHORT);
+              }
+
+              this.setState({
+                todoLists: tempFilter,
+                FilterPointer: false,
+                LoadMore: false
+              });
+
+              this.popupDialog.dismiss();
+            })
+            .catch(error => {
+              alert(`Insert new todoList error ${error}`);
+            });
+          //
+        } else {
+          if (tempFilter.length === 0) {
+            return ToastAndroid.show("No Results", ToastAndroid.SHORT);
+          } else {
+            ToastAndroid.show("Filtered", ToastAndroid.SHORT);
+          }
+          this.setState({
+            todoLists: tempFilter,
+            FilterPointer: false,
+            LoadMore: false
+          });
+        }
+      })
+      .catch(error => {
+        alert(`Insert new todoList error ${error}`);
+      });
+
+    //  console.log(tempFilter, "tempfilter");
+
+    /*    if (new Date(date).getDate() + 1 < 10) {
       var tempupdatedDate =
         new Date(date).getFullYear() +
         "-" +
@@ -482,19 +547,8 @@ class HomeScreen extends Component {
     } else {
       ToastAndroid.show("Filtered", ToastAndroid.SHORT);
     }
-    /*   let hondas = realm
-      .objects("TodoList")
-      .filtered(
-        "creationDate >= $0 && creationDate < $1 OR name = $2",
-        new Date(date),
-        new Date(tempupdatedDate),
-        name
-      ); */
+
     var updatedTempFilter = Object.values(tempFilter);
-
-    // updatedTempFilter = Object.values(tempFiltere);
-
-    // console.log(new Date(date));
 
     this.setState({
       todoLists: updatedTempFilter,
@@ -502,47 +556,7 @@ class HomeScreen extends Component {
       LoadMore: false
     });
 
-    this.popupDialog.dismiss();
-    //console.log(new Date(tempupdatedDate));
-    // console.log(updatedTempFilter, "Hondas");
-
-    /*   queryAllTodoLists().then(todoLists => {
-      var newArrayDataOfOjbect = Object.values(todoLists);
-     
-        var updatedfilter = newArrayDataOfOjbect.filter(todo => {
-          var updatedDate =
-            todo.creationDate.getFullYear() +
-            "-" +
-            "0" +
-            (todo.creationDate.getMonth() + 1) +
-            "-" +
-            todo.creationDate.getDate();
-
-          //     console.log(updatedDate);
-          //    console.log(date + "der");
-          if (name === "") {
-            // console.log("updated Date", updatedDate);
-         //   console.log("date", date); 
-            return updatedDate === date;
-          }
-
-          return todo.name === name && updatedDate === date;
-        }); */
-    /*         console.log(updatedfilter); */
-    /*   if (updatedfilter.length === 0) {
-          return ToastAndroid.show("No Records Found", ToastAndroid.SHORT);
-        }
-        this.setState({ todoLists: updatedfilter });
-        this.setState({
-          FilterPointer: false
-        });
-        this.popupDialog.dismiss();
-        ToastAndroid.show("filtered", ToastAndroid.SHORT);
-      })
-      .catch(error => {
-        alert("Error");
-        this.setState({ todoLists: [] }); */
-    // });
+    this.popupDialog.dismiss(); */
   };
 
   unloadFilterDataByName = () => {
@@ -558,61 +572,7 @@ class HomeScreen extends Component {
     this.state.FilterPointer ? this.LoadMore() : null;
   };
   render() {
-    /*    console.log(this.state.sliceStartIndex);
-    console.log(this.state.sliceUptoIndex); */
-
-    // console.log(this.state.todoLists.slice(0, 5));
-    /* 
-    var navigationView = (
-      <View style={{ flex: 1, backgroundColor: "#fff" }}>
-        <Text
-          style={{
-            margin: 10,
-            fontSize: 25,
-            textAlign: "left",
-            color: "tomato"
-          }}
-        >
-          Sorting By Name
-        </Text>
-
-        <Button
-          title={this.state.TitlePointer ? "Set Ascending" : "Set Descinding"}
-          onPress={
-            this.state.TitlePointer
-              ? () => this.reloadTitleAscendingSorter()
-              : () => this.reloadTitleDescendingSorter()
-          }
-        />
-        <Text
-          style={{
-            margin: 10,
-            fontSize: 25,
-            textAlign: "left",
-            color: "teal"
-          }}
-        >
-          Filter By Title
-        </Text>
-
-        <Button
-          title={this.state.FilterPointer ? "Filter up?" : "remove Filter"}
-          onPress={
-            this.state.FilterPointer
-              ? () => this.reloadFilterDataByName()
-              : () => this.unloadFilterDataByName()
-          }
-        />
-      </View>
-    ); */
-
     return (
-      /*    <DrawerLayoutAndroid
-        drawerWidth={300}
-        drawerPosition={DrawerLayoutAndroid.positions.Left}
-        renderNavigationView={() => navigationView}
-      > */
-
       <View style={styles.container}>
         <HeaderComponent
           title={"Todo List"}
@@ -779,11 +739,10 @@ class HomeScreen extends Component {
             />
           )}
           keyExtractor={item => item.id.toString()}
-          onEndReachedThreshold={1}
+          onEndReachedThreshold={0.5}
           onEndReached={this.checker.bind(this)}
         />
       </View>
-      //  </DrawerLayoutAndroid>
     );
   }
 }
