@@ -88,16 +88,6 @@ class TodoItemScreen extends Component {
         new Date(item.creationDate).getDate();
     }
 
-    if (new Date(item.creationDate).getDate() === 30) {
-      tempupdatedDate =
-        new Date(item.creationDate).getFullYear() +
-        "-" +
-        "0" +
-        (new Date(item.creationDate).getMonth() + 1) +
-        "-" +
-        new Date(item.creationDate).getDate();
-    }
-
     if (itemId !== "alksjalkdjfdlkjgakfj") {
       this.setState({ term: item.name, date: tempupdatedDate });
     }
@@ -226,7 +216,6 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     color: "orange",
     borderRadius: 15,
-    fontStyle: "italic",
     fontWeight: "bold",
 
     alignContent: "center",

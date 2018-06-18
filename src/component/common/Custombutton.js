@@ -17,8 +17,7 @@ const styles = {
     fontSize: 18,
     fontWeight: "600",
     paddingTop: 10,
-    paddingBottom: 10,
-    fontStyle: "italic"
+    paddingBottom: 10
   },
   buttonStyle: {
     width: "80%",

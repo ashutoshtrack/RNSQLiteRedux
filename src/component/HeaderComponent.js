@@ -86,7 +86,6 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     fontSize: 18,
-    fontWeight: "bold",
     position: "absolute",
     textAlign: "center",
     justifyContent: "center",
